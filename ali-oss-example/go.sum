@@ -151,6 +151,8 @@ github.com/sherlockhua/go_example/infra/file_uploader v0.0.0-20250519084335-908f
 github.com/sherlockhua/go_example/infra/file_uploader v0.0.0-20250519084335-908f8c827b1b/go.mod h1:Xr/3RRPIXXkMeoHhO7tTTpqXzSwDgSrvpENBxaUbEgg=
 github.com/sherlockhua/koala v0.0.0-20250105045954-e559eafb6eb7 h1:nYLxT0/dxqOhrTdToWqlQoN2+Zs2kNGWq3QW8U2mSvU=
 github.com/sherlockhua/koala v0.0.0-20250105045954-e559eafb6eb7/go.mod h1:GnUiAuQvq/6IlMAZ7JByStqYhIHm7Hvo9NBI8pPHie8=
+github.com/sherlockhua/koala v0.0.0-20250519094651-ea41797bce35 h1:qeIxw0et0R+fyMzKIWxhiNey1gR0mJPNS8aRsyTeS38=
+github.com/sherlockhua/koala v0.0.0-20250519094651-ea41797bce35/go.mod h1:p7R1cYV8CzhipjoWfE6PCZajm4+6c/6HW4Tz7NIlkRM=
 github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ=
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/smartystreets/assertions v0.0.0-20180927180507-b2de0cb4f26d/go.mod h1:OnSkiWE9lh6wB0YB77sQom3nweQdgAjqCqsofrRNTgc=

@@ -7,7 +7,7 @@ require (
 	github.com/alibabacloud-go/sts-20150401/v2 v2.0.3
 	github.com/alibabacloud-go/tea v1.3.9
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.7
-	github.com/sherlockhua/koala v0.0.0-20250105045954-e559eafb6eb7
+	github.com/sherlockhua/koala v0.0.0-20250519094651-ea41797bce35
 )
 
 require (
