@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: auto;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        input[type="file"] {
+            display: block;
+            margin: 20px auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 20px;
+            background-color: #4caf50;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            border-radius: 4px;
+            margin-top: 10px;
+            transition: width 0.4s ease;
+        }
+        .status {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ .title }}</h1>
+        <input type="file" id="fileInput">
+        <button onclick="uploadFile()">Upload to OSS</button>
+        <div class="progress-bar" id="progressBar">0%</div>
+        <div class="status" id="status"></div>
+    </div>
+
+    <script src="https://gosspublic.alicdn.com/aliyun-oss-sdk-6.18.0.min.js"></script>
+    <script>
+        // For now, we'll focus on the structure and backend interaction
+
+        async function getStsCredentials() {
+            try {
+                const response = await fetch('/sts');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log("STS Credentials:", data);
+                return data;
+            } catch (error) {
+                console.error("Error fetching STS credentials:", error);
+                document.getElementById('status').textContent = 'Error fetching credentials: ' + error.message;
+                return null;
+            }
+        }
+
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const progressBar = document.getElementById('progressBar');
+            const statusDiv = document.getElementById('status');
+
+            if (fileInput.files.length === 0) {
+                statusDiv.textContent = 'Please select a file first.';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            statusDiv.textContent = 'Fetching upload credentials...';
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+
+            const creds = await getStsCredentials();
+            if (!creds || !creds.AccessKeyId) { // Basic check, more robust check needed based on actual STS response
+                statusDiv.textContent = 'Failed to get upload credentials. Check console for details.';
+                return;
+            }
+
+            statusDiv.textContent = 'Credentials received. Preparing to upload...';
+
+            statusDiv.textContent = 'Initializing OSS client...';
+
+            let client;
+            try {
+                client = new OSS({
+                    region: creds.Region, 
+                    accessKeyId: creds.AccessKeyId,
+                    accessKeySecret: creds.AccessKeySecret,
+                    stsToken: creds.SecurityToken,
+                    bucket: creds.BucketName,
+                    endpoint: creds.Endpoint, // Use the endpoint from STS response
+                    secure: true // Use HTTPS
+                });
+            } catch (e) {
+                console.error('Error initializing OSS client:', e);
+                statusDiv.textContent = 'Error initializing OSS client: ' + e.message;
+                return;
+            }
+            
+            statusDiv.textContent = `Uploading ${file.name}...`;
+
+            try {
+                // The object name in OSS. Can include path, e.g., 'my-folder/' + file.name
+                const objectName = file.name; 
+                const result = await client.put(objectName, file, {
+                    progress: (p, cpt, res) => {
+                        const percent = Math.floor(p * 100);
+                        progressBar.style.width = percent + '%';
+                        progressBar.textContent = percent + '%';
+                        console.log(`Upload progress: ${percent}%`);
+                    }
+                });
+                console.log('Upload success:', result);
+                statusDiv.textContent = `File uploaded successfully: ${result.name}`;
+                progressBar.style.width = '100%';
+                progressBar.textContent = '100%';
+            } catch (e) {
+                console.error('Upload error:', e);
+                statusDiv.textContent = 'Upload failed: ' + (e.message || JSON.stringify(e));
+                // Reset progress bar on failure
+                progressBar.style.width = '0%';
+                progressBar.textContent = '0%';
+            }
+        }
+    </script>
+</body>
+</html>
