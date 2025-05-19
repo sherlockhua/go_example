@@ -137,7 +137,7 @@
 
             try {
                 // The object name in OSS. Can include path, e.g., 'my-folder/' + file.name
-                const objectName = file.name; 
+                const objectName = creds.ObjectKey//file.name;
                 const result = await client.put(objectName, file, {
                     progress: (p, cpt, res) => {
                         const percent = Math.floor(p * 100);
@@ -147,6 +147,12 @@
                     }
                 });
                 console.log('Upload success:', result);
+                console.log('filekey:', result.name);
+                console.log('filename:', file.name);
+                console.log('filesize:', file.size);
+                console.log('filetype:', file.type);
+                console.log('etag:', result.res.headers.etag);
+                console.log('url:', result.url);
                 statusDiv.textContent = `File uploaded successfully: ${result.name}`;
                 progressBar.style.width = '100%';
                 progressBar.textContent = '100%';

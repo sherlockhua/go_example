@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sherlockhua/go_example/infra/file_uploader"
+	"github.com/sherlockhua/koala/logs"
+	"go_example/infra/file_uploader"
 )
 
 func main() {
@@ -14,6 +16,9 @@ func main() {
 
 	// 提供静态文件服务 (如果需要)
 	// r.Static("/static", "./static")
+	for i := 0; i < 1000; i++ {
+		logs.Infof(context.Background(), "Starting server on port 8080...")
+	}
 
 	// 加载 HTML 模板
 	r.LoadHTMLGlob("templates/*")
@@ -44,13 +49,20 @@ func getStsCredentials(c *gin.Context) {
 		AccessKeySecret: os.Getenv("ALICLOUD_ACCESS_KEY_SECRET"),
 		RoleArn:         os.Getenv("ALICLOUD_ROLE_ARN"),
 		BucketName:      os.Getenv("ALICLOUD_OSS_BUCKET_NAME"),
-		Endpoint:        os.Getenv("ALICLOUD_OSS_ENDPOINT"),
+		StsEndpoint:     os.Getenv("ALICLOUD_STS_ENDPOINT"),
+		OssEndpoint:     os.Getenv("ALICLOUD_OSS_ENDPOINT"),
 		Region:          os.Getenv("ALICLOUD_OSS_REGION"),
 		ExpiredSeconds:  3600,
 		AllowBucket:     []string{os.Getenv("ALICLOUD_OSS_BUCKET_NAME")},
 		ServiceName:     "oss-web-direct-upload",
-	})
-	result, err := uploader.GetFileUploadAccessKey(c)
+	}, nil)
+
+	fileInfo := &file_uploader.FileInfo{
+		FileName: "example.txt",
+		FileSize: 1024,
+		FileType: "text/plain",
+	}
+	result, err := uploader.GetFileUploadAccessKey(c, 1, fileInfo)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取 STS 凭证失败"})
@@ -63,6 +75,8 @@ func getStsCredentials(c *gin.Context) {
 		"SecurityToken":   result.SecurityToken,
 		"BucketName":      result.BucketName,
 		"Region":          result.Region, // Bucket 所在的区域，例如：oss-cn-hangzhou
-		//"Endpoint":        ossEndpoint,
+		"Endpoint":        result.Endpoint,
+		"ObjectKey":       result.ObjectKey,
+		"CallbackInfo":    result.CallbackInfo,
 	})
 }
