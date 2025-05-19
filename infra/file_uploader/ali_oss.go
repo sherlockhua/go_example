@@ -7,16 +7,19 @@ import (
 	sts "github.com/alibabacloud-go/sts-20150401/v2/client"
 	util "github.com/alibabacloud-go/tea-utils/v2/service"
 	"github.com/alibabacloud-go/tea/tea"
+	"github.com/sherlockhua/koala/cache"
 	"github.com/sherlockhua/koala/logs"
 )
 
 type AliFileUploadImpl struct {
-	conf *FileUploadConfig
+	conf  *FileUploadConfig
+	cache cache.RedisCache
 }
 
-func NewAliFileUploader(conf *FileUploadConfig) FileUploader {
+func NewAliFileUploader(conf *FileUploadConfig, cache cache.RedisCache) FileUploader {
 	return &AliFileUploadImpl{
-		conf: conf,
+		conf:  conf,
+		cache: cache,
 	}
 }
 
