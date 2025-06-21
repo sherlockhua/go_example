@@ -77,13 +77,13 @@
 
         async function getStsCredentials() {
             try {
-                const response = await fetch('/sts');
+                const response = await fetch('http://localhost:8080/api/v3/upload/token?file_name=test.txt&file_size=2828&file_type=txt');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
                 console.log("STS Credentials:", data);
-                return data;
+                return data.data;
             } catch (error) {
                 console.error("Error fetching STS credentials:", error);
                 document.getElementById('status').textContent = 'Error fetching credentials: ' + error.message;
@@ -107,24 +107,26 @@
             progressBar.textContent = '0%';
 
             const creds = await getStsCredentials();
-            if (!creds || !creds.AccessKeyId) { // Basic check, more robust check needed based on actual STS response
-                statusDiv.textContent = 'Failed to get upload credentials. Check console for details.';
+            if (!creds || !creds.access_key_id) { // Basic check, more robust check needed based on actual STS response
+                statusDiv.textContent = 'Failed to get upload credentials. Check console for details.'+creds.access_key_id;
+                console.error("failed creds ", creds)
                 return;
             }
 
             statusDiv.textContent = 'Credentials received. Preparing to upload...';
 
             statusDiv.textContent = 'Initializing OSS client...';
+                console.error("failed creds ", creds)
 
             let client;
             try {
                 client = new OSS({
-                    region: creds.Region, 
-                    accessKeyId: creds.AccessKeyId,
-                    accessKeySecret: creds.AccessKeySecret,
-                    stsToken: creds.SecurityToken,
-                    bucket: creds.BucketName,
-                    endpoint: creds.Endpoint, // Use the endpoint from STS response
+                    region: creds.region, 
+                    accessKeyId: creds.access_key_id,
+                    accessKeySecret: creds.access_key_secret,
+                    stsToken: creds.security_token,
+                    bucket: creds.bucket_name,
+                    endpoint: creds.endpoint, // Use the endpoint from STS response
                     secure: true // Use HTTPS
                 });
             } catch (e) {
@@ -137,7 +139,7 @@
 
             try {
                 // The object name in OSS. Can include path, e.g., 'my-folder/' + file.name
-                const objectName = creds.ObjectKey//file.name;
+                const objectName = creds.object_key//file.name;
                 const result = await client.put(objectName, file, {
                     progress: (p, cpt, res) => {
                         const percent = Math.floor(p * 100);
