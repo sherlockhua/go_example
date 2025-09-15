@@ -4,10 +4,27 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"go_example/google_login/config"
 	"go_example/google_login/middleware"
+	"go_example/google_login/models"
 )
 
-func (h *AuthHandler) Profile(w http.ResponseWriter, r *http.Request) {
+// UserHandler handles user-related requests.
+type UserHandler struct {
+	config *config.Config
+	db     *models.Database
+}
+
+// NewUserHandler creates a new UserHandler.
+func NewUserHandler(cfg *config.Config, db *models.Database) *UserHandler {
+	return &UserHandler{
+		config: cfg,
+		db:     db,
+	}
+}
+
+// Profile returns the user's profile information.
+func (h *UserHandler) Profile(w http.ResponseWriter, r *http.Request) {
 	// Get JWT from cookie
 	cookie, err := r.Cookie("jwt")
 	if err != nil {

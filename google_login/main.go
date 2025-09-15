@@ -25,8 +25,9 @@ func main() {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	// Create auth handler
+	// Create handlers
 	authHandler := handlers.NewAuthHandler(cfg, db)
+	userHandler := handlers.NewUserHandler(cfg, db)
 
 	// Setup routes
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -47,7 +48,7 @@ func main() {
 		authHandler.Callback(w, r)
 	})
 	http.HandleFunc("/logout", authHandler.Logout)
-	http.HandleFunc("/profile", authHandler.Profile)
+	http.HandleFunc("/profile", userHandler.Profile)
 
 	// Start server
 	log.Printf("Server started on http://localhost:8080")
