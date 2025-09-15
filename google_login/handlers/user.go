@@ -25,17 +25,10 @@ func NewUserHandler(cfg *config.Config, db *models.Database) *UserHandler {
 
 // Profile returns the user's profile information.
 func (h *UserHandler) Profile(w http.ResponseWriter, r *http.Request) {
-	// Get JWT from cookie
-	cookie, err := r.Cookie("jwt")
-	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusFound)
-		return
-	}
-
-	// Parse JWT
-	claims, err := middleware.ParseJWT(cookie.Value, h.config.JWTSecret)
-	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusFound)
+	// Get claims from context
+	claims, ok := r.Context().Value("userClaims").(*middleware.JWTClaims)
+	if !ok {
+		http.Error(w, "Invalid token claims", http.StatusUnauthorized)
 		return
 	}
 
@@ -46,6 +39,7 @@ func (h *UserHandler) Profile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return user info
+	// Return user as JSON
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 }

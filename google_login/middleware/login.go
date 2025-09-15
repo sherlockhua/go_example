@@ -61,16 +61,29 @@ func ParseJWT(tokenString, secret string) (*JWTClaims, error) {
 
 func JWTMiddleware(jwtSecret string, next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		tokenString := ""
+		// Try to get token from Authorization header
 		authHeader := r.Header.Get("Authorization")
-		if authHeader == "" {
-			http.Error(w, ErrNoToken.Error(), http.StatusUnauthorized)
+		if authHeader != "" {
+			tokenString = strings.TrimPrefix(authHeader, "Bearer ")
+		}
+
+		// If not in header, try to get from cookie
+		if tokenString == "" {
+			cookie, err := r.Cookie("jwt")
+			if err == nil {
+				tokenString = cookie.Value
+			}
+		}
+
+		if tokenString == "" {
+			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}
 
-		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		claims, err := ParseJWT(tokenString, jwtSecret)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
+			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}
 

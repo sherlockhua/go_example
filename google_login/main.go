@@ -6,6 +6,7 @@ import (
 
 	"go_example/google_login/config"
 	"go_example/google_login/handlers"
+	"go_example/google_login/middleware"
 	"go_example/google_login/models"
 )
 
@@ -48,7 +49,7 @@ func main() {
 		authHandler.Callback(w, r)
 	})
 	http.HandleFunc("/logout", authHandler.Logout)
-	http.HandleFunc("/profile", userHandler.Profile)
+	http.HandleFunc("/profile", middleware.JWTMiddleware(cfg.JWTSecret, userHandler.Profile))
 
 	// Start server
 	log.Printf("Server started on http://localhost:8080")
