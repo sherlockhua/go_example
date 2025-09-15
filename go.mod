@@ -1,17 +1,25 @@
 module go_example
 
-go 1.21.13
+go 1.23
+
+toolchain go1.24.7
 
 require (
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.1.7
 	github.com/alibabacloud-go/sts-20150401/v2 v2.0.3
 	github.com/alibabacloud-go/tea v1.3.9
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.7
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.10.0
+	github.com/gorilla/sessions v1.4.0
+	github.com/joho/godotenv v1.5.1
+	github.com/lib/pq v1.10.9
 	github.com/sherlockhua/koala v0.0.0-20250519094651-ea41797bce35
+	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
 )
 
 require (
+	cloud.google.com/go v0.26.0 // indirect
 	github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.5 // indirect
 	github.com/alibabacloud-go/debug v1.0.1 // indirect
 	github.com/alibabacloud-go/endpoint-util v1.1.0 // indirect
@@ -31,6 +39,8 @@ require (
 	github.com/go-playground/validator/v10 v10.20.0 // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/golang/protobuf v1.5.0 // indirect
+	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
@@ -54,6 +64,7 @@ require (
 	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
+	google.golang.org/appengine v1.4.0 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

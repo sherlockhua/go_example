@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OAuth Login</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .login-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .login-btn {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        font-size: 16px;
+      }
+      .google-btn {
+        background-color: #db4437;
+      }
+      .github-btn {
+        background-color: #333;
+      }
+      .facebook-btn {
+        background-color: #4267b2;
+      }
+      .logout-btn {
+        background-color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Welcome to OAuth Login Demo</h1>
+
+    <div id="auth-section">
+      <div class="login-buttons">
+        <a href="/login?provider=google" class="login-btn google-btn"
+          >Login with Google</a
+        >
+        <a href="/login?provider=github" class="login-btn github-btn"
+          >Login with GitHub</a
+        >
+        <a href="/login?provider=facebook" class="login-btn facebook-btn"
+          >Login with Facebook</a
+        >
+      </div>
+    </div>
+
+    <div id="profile-section" style="display: none">
+      <h2>Profile Information</h2>
+      <div id="profile-data"></div>
+      <button onclick="logout()" class="login-btn logout-btn">Logout</button>
+    </div>
+
+    <script>
+      // Check if user is logged in
+      function checkAuth() {
+        fetch("/profile", {
+          credentials: "include",
+        })
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error("Not authenticated");
+          })
+          .then((user) => {
+            document.getElementById("auth-section").style.display = "none";
+            document.getElementById("profile-section").style.display = "block";
+
+            const profileData = document.getElementById("profile-data");
+            profileData.innerHTML = `
+                    <p><strong>Name:</strong> ${user.name || "N/A"}</p>
+                    <p><strong>Email:</strong> ${user.email || "N/A"}</p>
+                    ${
+                      user.picture
+                        ? `<img src="${user.picture}" alt="Profile" width="100">`
+                        : ""
+                    }
+                    <p><strong>Provider:</strong> ${user.provider}</p>
+                `;
+          })
+          .catch(() => {
+            document.getElementById("auth-section").style.display = "block";
+            document.getElementById("profile-section").style.display = "none";
+          });
+      }
+
+      function logout() {
+        fetch("/logout", {
+          method: "POST",
+          credentials: "include",
+        }).then(() => {
+          window.location.href = "/";
+        });
+      }
+
+      // Check auth status on page load
+      document.addEventListener("DOMContentLoaded", checkAuth);
+    </script>
+  </body>
+</html>

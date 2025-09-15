@@ -25,3 +25,4 @@ go.work.sum
 .env
 
 ali-oss-example/ali-oss-example
+node_modules
